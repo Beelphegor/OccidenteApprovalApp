@@ -21,14 +21,33 @@
             };
             
             var approvedAccounts = function (pendingAccount) {
-                var reference = alertify.prompt("Transaccion de Referencia #");
-                dataContext.PendingAccounts.ApprovedAcounts(pendingAccount.id, reference).done(getPendingAccounts);
+                alertify.prompt("Transaccion de Referencia #", function (e, str) {
+                    if (e) {
+                        dataContext.PendingAccounts.ApprovedAcounts(pendingAccount.id, str).done(getPendingAccounts);
+                    }
+                }, "");
             };
 
             var denyAccounts = function (pendingAccount) {
-                var reference = alertify.prompt("Transaccion de Referencia #");
-                var reason = alertify.prompt("Razon para denegar");
-                dataContext.PendingAccounts.DenialAccount(pendingAccount.id, reason, reference).done(getPendingAccounts);
+                var reference = "",
+                    reason = "";
+                
+                alertify.prompt("Transaccion de Referencia #", function (e, str) {
+                    if (e) {
+                        reference = str;
+                        alertify.prompt("Razon para denegar", function (e, str) {
+                            if (e) {
+                                reason = str;
+                                if (reference !== "" && reason !== "") {
+                                    dataContext.PendingAccounts.DenialAccount(pendingAccount.id, reason, reference).done(getPendingAccounts);
+                                } else {
+                                    alertify.alert("No puede enviar ninguno de los campos requeridos vacios.");
+                                }
+                            }
+                        }, "");
+                    }
+                }, "");
+
             };
 
             var showDetails = function (approvalRequest) {
